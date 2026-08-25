@@ -40,13 +40,16 @@ def get_user_by_id(db: Session, user_id: int):
 
 def update_user(db: Session, user_id: int, user_data: dict,):
     """Изменение пользователя."""
-    user = db.get(User, user_id)
+    statement = select(User).where(User.id==user_id)
+    result = db.execute(statement)
+    user = result.scalars().one_or_none()
 
     if user is None:
         return None
 
-    for field, value in user_data.items():
-        setattr(user, field, value)
+    user.username = user_data["username"]
+    user.email = user_data["email"]
+    user.age = user_data["age"]
 
     db.commit()
     db.refresh(user)
@@ -70,3 +73,19 @@ def delete_user(db: Session, user_id: int) -> bool:
         raise
 
     return True
+
+
+# def update_user(db: Session, user_id: int, user_data: dict,):
+#     """Изменение пользователя. (Универсальная функция)"""
+#     user = db.get(User, user_id)
+#
+#     if user is None:
+#         return None
+#
+#     for field, value in user_data.items():
+#         setattr(user, field, value)
+#
+#     db.commit()
+#     db.refresh(user)
+#
+#     return user

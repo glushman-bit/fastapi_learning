@@ -5,7 +5,7 @@ from app.database import Base
 
 
 class User(Base):
-    """Класс модели User."""
+    """Класс модели User.  Отвечает за БД."""
     __tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(primary_key=True)
