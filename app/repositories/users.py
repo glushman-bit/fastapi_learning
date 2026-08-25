@@ -17,9 +17,14 @@ def create_user(db: Session, user_data: dict):
     """Создание пользователей в БД."""
     user = User(**user_data)
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    except Exception:
+        db.rollback()
+        raise
 
     return user
 
@@ -59,7 +64,12 @@ def delete_user(db: Session, user_id: int) -> bool:
     if user is None:
         return False
 
-    db.delete(user)
-    db.commit()
+    try:
+        db.delete(user)
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return True
