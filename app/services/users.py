@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.repositories.users import (
@@ -16,7 +17,13 @@ def get_users(db: Session):
 
 def create_user(db: Session, user_data: dict):
     """Создание пользователя."""
-    return create_user_repository(db, user_data,)
+    try:
+        return create_user_repository(db, user_data,)
+
+    except IntegrityError:
+        raise ValueError(
+            "Пользователь с таким email уже существует"
+        )
 
 
 def get_user(db: Session, user_id: int):

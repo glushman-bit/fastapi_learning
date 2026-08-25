@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import User
@@ -22,7 +23,7 @@ def create_user(db: Session, user_data: dict):
         db.commit()   # Фиксация пользователя
         db.refresh(user)    # Обновление пользователя в БД
 
-    except Exception:
+    except IntegrityError:
         db.rollback()    # Возврат сессии к исходному состоянию БД при ошибке
         raise
 
