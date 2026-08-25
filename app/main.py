@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from starlette.responses import JSONResponse
 
 from app.database import engine, Base
 from app.routers.users import router as users_router
@@ -36,3 +37,13 @@ def test():
         "password": "secret",
         "is_admin": True,
     }
+
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError):
+
+
+    return JSONResponse(
+        status_code=409,
+        content={"detail": str(exc)},
+    )
