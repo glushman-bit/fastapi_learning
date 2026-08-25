@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 
-from app.schemas import UserResponse, UserCreate
+from app.schemas import UserResponse, UserCreate, UserUpdate
 from app.services.users import (
     create_user as create_user_service,
     get_users as get_users_service,
@@ -20,7 +20,7 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db),):
     """Эндпойнт: создание пользователя."""
     return create_user_service(
         db,
-        user.model_dump(),
+        user.model_dump(),  # превратит Pydantic-модель обратно в обычный Python-словарь
     )
 
 
@@ -61,6 +61,22 @@ def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db),):
         )
 
     return updated_user
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+def update_user_partial(user_id: int, user: UserUpdate, db: Session = Depends(get_db),):
+    """Эндпойнт: Частичное изменение пользователя."""
+    updated_user = update_user_service(
+        db,
+        user_id,
+        user.model_dump(exclude_unset=True),
+    )
+
+    if updated_user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Пользователь не найден",
+        )
 
 
 @router.delete("/users/{user_id}")

@@ -6,11 +6,11 @@ from app.models import User
 
 def get_users(db: Session):
     """Получение пользователей из БД."""
-    statement = select(User)
+    statement = select(User)  # Запрос к БД
 
     result = db.execute(statement)
 
-    return result.scalars().all()
+    return result.scalars().all()   # Вывод всех пользователей
 
 
 def create_user(db: Session, user_data: dict):
@@ -18,12 +18,12 @@ def create_user(db: Session, user_data: dict):
     user = User(**user_data)
 
     try:
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        db.add(user)  # Добавление пользователя в БД
+        db.commit()   # Фиксация пользователя
+        db.refresh(user)    # Обновление пользователя в БД
 
     except Exception:
-        db.rollback()
+        db.rollback()    # Возврат сессии к исходному состоянию БД при ошибке
         raise
 
     return user
@@ -31,25 +31,22 @@ def create_user(db: Session, user_data: dict):
 
 def get_user_by_id(db: Session, user_id: int):
     """Получение пользователя по id."""
-    user = select(User).where(User.id==user_id)
+    user = select(User).where(User.id==user_id)  # Создание запроса
 
-    result = db.execute(user)
+    result = db.execute(user)   # Выполнение запроса
 
-    return result.scalars().one_or_none()
+    return result.scalars().one_or_none()   # Вывод одного пользователя
 
 
 def update_user(db: Session, user_id: int, user_data: dict,):
     """Изменение пользователя."""
-    statement = select(User).where(User.id==user_id)
-    result = db.execute(statement)
-    user = result.scalars().one_or_none()
+    user = db.get(User, user_id)
 
     if user is None:
         return None
 
-    user.username = user_data["username"]
-    user.email = user_data["email"]
-    user.age = user_data["age"]
+    for field, value in user_data.items():
+        setattr(user, field, value)
 
     db.commit()
     db.refresh(user)
@@ -65,7 +62,7 @@ def delete_user(db: Session, user_id: int) -> bool:
         return False
 
     try:
-        db.delete(user)
+        db.delete(user)   # удаление из БД
         db.commit()
 
     except Exception:
