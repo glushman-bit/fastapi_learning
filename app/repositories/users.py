@@ -33,8 +33,6 @@ def get_user_by_id(db: Session, user_id: int):
     return result.scalars().one_or_none()
 
 
-
-
 def update_user(db: Session, user_id: int, user_data: dict,):
     """Изменение пользователя."""
     statement = select(User).where(User.id==user_id)
@@ -54,8 +52,7 @@ def update_user(db: Session, user_id: int, user_data: dict,):
     return user
 
 
-
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: int) -> bool:
     """Удаление пользователя."""
     user = db.get(User, user_id)
 

@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
 from app.repositories.users import (
-
     create_user as create_user_repository,
     delete_user as delete_user_repository,
     update_user as update_user_repository,
@@ -30,6 +29,6 @@ def update_user(db: Session, user_id: int, user_data: dict):
     return update_user_repository(db, user_id, user_data)
 
 
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: int) -> bool:
     """Удаление пользователя."""
     return delete_user_repository(db, user_id)

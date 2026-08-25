@@ -6,12 +6,10 @@ from app.database import get_db
 from app.schemas import UserResponse, UserCreate
 from app.services.users import (
     create_user as create_user_service,
-
     get_users as get_users_service,
     get_user as get_user_service,
     update_user as update_user_service,
     delete_user as delete_user_service,
-
 )
 
 router = APIRouter()
