@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request
-from starlette.responses import JSONResponse
+from fastapi.responses import JSONResponse
 
 from app.database import engine, Base
+from app.exceptions import UserAlreadyExistsError
 from app.routers.users import router as users_router
 from app.schemas import UserResponse
 
@@ -39,8 +40,8 @@ def test():
     }
 
 
-@app.exception_handler(ValueError)
-async def value_error_handler(request: Request, exc: ValueError):
+@app.exception_handler(UserAlreadyExistsError)
+async def value_error_handler(request: Request, exc: UserAlreadyExistsError):
 
 
     return JSONResponse(
