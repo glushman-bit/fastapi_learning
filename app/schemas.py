@@ -18,14 +18,6 @@ class UserResponse(BaseModel):
 
 class UserUpdate(BaseModel):
     """Схема изменения пользователя."""
-    username: str | None = Field(
-        default=None,
-        min_length=3,
-        max_length=20,
-    )
+    username: str | None = Field(default=None, min_length=3, max_length=20,)
     email: str | None = None
-    age: int | None = Field(
-        default=None,
-        ge=18,
-        le=100,
-    )
+    age: int | None = Field(default=None, ge=18, le=100,)
