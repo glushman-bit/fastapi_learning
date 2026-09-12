@@ -17,3 +17,6 @@ DATABASE_URL = (
     f"@{DB_HOST}:{DB_PORT}"
     f"/{DB_NAME}"
 )
+
+SECRET_KEY = os.environ["SECRET_KEY"]
+JWT_ALGORITHM = os.environ["JWT_ALGORITHM"]
