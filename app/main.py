@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 
+from app.auth import get_token, get_current_user
 from app.database import engine, Base
 from app.exceptions import UserAlreadyExistsError
+from app.models import User
 from app.routers.users import router as users_router
 from app.schemas import UserResponse
 
@@ -48,3 +50,17 @@ async def value_error_handler(request: Request, exc: UserAlreadyExistsError):
         status_code=409,
         content={"detail": str(exc)},
     )
+
+
+@app.get("/token-test")
+def token_test(token: str = Depends(get_token)):
+    return {"token": token}
+
+
+@app.get("/current-user")
+def current_user(user: User = Depends(get_current_user)):
+    return {
+        "user_id": user.id,
+        "username": user.username,
+        "email": user.email,
+    }
