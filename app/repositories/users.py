@@ -7,11 +7,19 @@ from app.models import User
 
 def get_users(db: Session):
     """Получение пользователей из БД."""
-    statement = select(User)  # Запрос к БД
+    statement = select(User)  # Запрос к БД == SELECT * FROM users;
 
-    result = db.execute(statement)
+    result = db.execute(statement) # Возвращает объект запроса
 
     return result.scalars().all()   # Вывод всех пользователей
+        # scalars() говорит:
+        # «Из каждой строки мне нужен первый элемент — сам объект User».
+        # .all() - Забираем все найденные объекты в обычный Python-список:
+        # [
+        #     User(...),
+        #     User(...),
+        #     User(...),
+        # ]
 
 
 def create_user(db: Session, user_data: dict):
