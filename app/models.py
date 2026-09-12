@@ -18,4 +18,13 @@ class User(Base):
         String(255),
         nullable=False,
     )
+    phone: Mapped[str] = mapped_column(
+        String(),
+        nullable=False,
+    )
     age: Mapped[int]
+    country: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        server_default="Не указана",
+    )
