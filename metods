@@ -1,0 +1,7 @@
+Метод	                | Где используется  | Что делает
+
+model_dump()	        | Pydantic	        | Модель → dict
+db.execute()	        | SQLAlchemy	    | Выполняет SQL-запрос
+scalars()	            | SQLAlchemy	    | Извлекает первый элемент каждой строки
+scalars().all()	        | SQLAlchemy	    | Получает список объектов
+scalars().one_or_none()	| SQLAlchemy	    | Получает один объект или None
