@@ -7,6 +7,7 @@ class UserCreate(BaseModel):
     email: str
     age: int = Field(ge=18, le=100)
     phone: str
+    password: str = Field(min_length=8)
 
 
 class UserResponse(BaseModel):
