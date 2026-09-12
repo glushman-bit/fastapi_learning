@@ -78,6 +78,8 @@ def update_user_partial(user_id: int, user: UserUpdate, db: Session = Depends(ge
             detail="Пользователь не найден",
         )
 
+    return updated_user
+
 
 @router.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db),):
