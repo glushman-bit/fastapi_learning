@@ -3,6 +3,9 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from config import SECRET_KEY, JWT_ALGORITHM
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models import User
 
 security = HTTPBearer()
 
@@ -40,6 +43,28 @@ def decode_token(token: str) -> dict:
     return payload
 
 
-def get_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+def get_token(
+        credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> str:
     """Получение JWT из Authorization header."""
     return credentials.credentials
+
+
+def get_current_user(
+        token: str = Depends(get_token),
+        db: Session = Depends(get_db),
+):
+    """Получение user_id текущего пользователя."""
+    payload = decode_token(token)
+
+    user_id = payload["user_id"]
+
+    user = db.get(User, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Пользователь не найден",
+        )
+
+    return user
