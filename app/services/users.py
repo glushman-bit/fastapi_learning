@@ -10,6 +10,9 @@ from app.repositories.users import (
     get_user_by_id,
 )
 from app.exceptions import UserAlreadyExistsError
+from pwdlib import PasswordHash
+
+password_hash = PasswordHash.recommended()
 
 
 def get_users(db: Session):
@@ -19,6 +22,9 @@ def get_users(db: Session):
 
 def create_user(db: Session, user_data: dict):
     """Создание пользователя."""
+    password = user_data.pop("password")
+    user_data["password_hash"] = password_hash.hash(password)
+
     try:
         return create_user_repository(db, user_data,)
 
