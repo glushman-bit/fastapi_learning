@@ -48,9 +48,8 @@ def update_user(db: Session, user_id: int, user_data: dict,):
     if user is None:
         return None
 
-    user.username = user_data["username"]
-    user.email = user_data["email"]
-    user.age = user_data["age"]
+    for field, value in user_data.items():
+        setattr(user, field, value)
 
     db.commit()
     db.refresh(user)
