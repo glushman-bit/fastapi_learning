@@ -24,7 +24,7 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db),):
     )
 
 
-@router.get("/users")
+@router.get("/users", response_model=list[UserResponse])
 def get_users_endpoint(db: Session = Depends(get_db),):
     """Эндпойнт: получение списка пользователей."""
     return get_users_service(db)
