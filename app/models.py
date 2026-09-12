@@ -28,3 +28,7 @@ class User(Base):
         nullable=False,
         server_default="Не указана",
     )
+    password_hash: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
