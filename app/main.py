@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
 
 from app.auth import get_token, get_current_user, get_current_admin
-from app.database import engine, Base
+from app.database import engine, Base, get_db
 from app.exceptions import UserAlreadyExistsError
 from app.models import User
 from app.routers.users import router as users_router
-from app.schemas import UserResponse
+from app.schemas import UserResponse, AdminUserResponse
+from app.services.users import get_users as get_users_service
 
 
 Base.metadata.create_all(bind=engine)
@@ -64,11 +66,9 @@ def current_user(user: User = Depends(get_current_user)):
     }
 
 
-@app.get("/admin/users")
+@app.get("/admin/users", response_model=list[AdminUserResponse])
 def admin_get_users(
-        admin: User = Depends(get_current_admin)
+        db: Session = Depends(get_db),
+        _: User = Depends(get_current_admin)
 ):
-    return {
-        "message": "Список пользователей доступен администратору",
-        "admin_id": admin.id,
-    }
+    return get_users_service(db)
