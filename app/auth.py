@@ -91,7 +91,7 @@ def check_user_access(
         current_user: User = Depends(get_current_user),
         ):
     """Проверка доступа пользователя к своим данным."""
-    if current_user.id != user_id:
+    if current_user.id != user_id and not current_user.is_admin:
         raise HTTPException(
             status_code=403,
             detail="Нет доступа к данным другого пользователя",
