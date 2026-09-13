@@ -83,3 +83,26 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
 
     return user
+
+
+def change_password(
+        db: Session,
+        user_id: int,
+        old_password: str,
+        new_password: str,
+):
+    """Изменение пароля пользователя."""
+    user = get_user_by_id(db, user_id)
+
+    if user is None:
+        return None
+
+    if not password_hash.verify(old_password, user.password_hash):
+        return False
+
+    user.password_hash = password_hash.hash(new_password)
+
+    db.commit()
+    db.refresh(user)
+
+    return True
