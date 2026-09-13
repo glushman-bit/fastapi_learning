@@ -40,7 +40,11 @@ def get_users_endpoint(
 
 
 @router.get("/users/{user_id}", response_model=UserResponse)
-def get_user_endpoint(user_id: int, db: Session = Depends(get_db),):
+def get_user_endpoint(
+        user_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
     """Эндпойнт: получение пользователя по id."""
     user = get_user_service(db, user_id)
 
