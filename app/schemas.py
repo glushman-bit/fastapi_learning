@@ -1,4 +1,7 @@
-from pydantic import BaseModel, Field, ConfigDict, model_validator
+from pydantic import (BaseModel,
+                      Field,
+                      ConfigDict,
+                      model_validator)
 
 
 class UserCreate(BaseModel):
@@ -50,3 +53,9 @@ class UserUpdateFull(BaseModel):
     age: int = Field(ge=18, le=100)
     phone: str
     country: str
+
+
+class ChangePasswordRequest(BaseModel):
+    """Схема данных для смены пароля."""
+    old_password: str
+    new_password: str
