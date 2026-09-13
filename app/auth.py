@@ -40,6 +40,20 @@ def decode_token(token: str) -> dict:
             detail="Недействительный токен",
         )
 
+    if "user_id" not in payload:
+        raise HTTPException(
+            status_code=401,
+            detail="Недействительный токен",
+        )
+
+    user_id = payload.get("user_id")
+
+    if not isinstance(user_id, int):
+        raise HTTPException(
+            status_code=401,
+            detail="Недействительный токен",
+        )
+
     return payload
 
 
