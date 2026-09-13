@@ -79,8 +79,17 @@ def get_current_user(
 
     if user is None:
         raise HTTPException(
-            status_code=404,
-            detail="Пользователь не найден",
+            status_code=401,
+            detail="Недействительный токен",
         )
 
     return user
+
+
+def check_user_access(current_user: User, user_id: int):
+    """Проверка доступа пользователя к своим данным."""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Нет доступа к данным другого пользователя",
+        )
