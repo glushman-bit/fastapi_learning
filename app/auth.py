@@ -1,4 +1,5 @@
 import jwt
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -13,7 +14,8 @@ security = HTTPBearer()
 def create_access_token(user_id: int) -> str:
     """Создание access token."""
     payload = {
-        "user_id": user_id
+        "user_id": user_id,
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
     }
 
     token = jwt.encode(
