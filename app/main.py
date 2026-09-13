@@ -1,14 +1,18 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.auth import get_token, get_current_user, get_current_admin
 from app.database import engine, Base, get_db
-from app.exceptions import UserAlreadyExistsError
+from app.exceptions import UserAlreadyExistsError, CannotDeleteSelfError
 from app.models import User
 from app.routers.users import router as users_router
 from app.schemas import UserResponse, AdminUserResponse
-from app.services.users import get_users as get_users_service
+from app.services.users import (
+    get_users as get_users_service,
+    delete_user as delete_user_service,
+)
+
 
 
 Base.metadata.create_all(bind=engine)
@@ -72,3 +76,36 @@ def admin_get_users(
         _: User = Depends(get_current_admin)
 ):
     return get_users_service(db)
+
+
+@app.delete("/admin/users/{user_id}")
+def admin_delete_user(
+        user_id: int,
+        db: Session = Depends(get_db),
+        admin: User = Depends(get_current_admin)
+):
+    try:
+        deleted_user = delete_user_service(
+            db,
+            user_id,
+            admin.id,
+        )
+
+    except CannotDeleteSelfError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        )
+
+    if not deleted_user:
+        raise HTTPException(
+            status_code=404,
+            detail="Пользователь не найден"
+        )
+
+    return {
+        "message": "Пользователь удалён",
+        "deleted_user_id": user_id,
+        "admin_id": admin.id,
+    }
+
