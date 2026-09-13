@@ -22,8 +22,6 @@ class UserResponse(BaseModel):
     country: str
 
 
-
-
 class UserUpdate(BaseModel):
     """Схема изменения пользователя."""
     username: str | None = Field(default=None, min_length=3, max_length=20,)
@@ -37,3 +35,9 @@ class UserUpdate(BaseModel):
                 raise ValueError(f"{field} не может быть null")
 
         return self
+
+
+class LoginRequest(BaseModel):
+    """Схема данных для авторизации."""
+    email: str
+    password: str
