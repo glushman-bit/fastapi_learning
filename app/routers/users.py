@@ -1,15 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
+from app.auth import create_access_token
 from app.database import get_db
 
-from app.schemas import UserResponse, UserCreate, UserUpdate
+from app.schemas import UserResponse, UserCreate, UserUpdate, LoginRequest
 from app.services.users import (
     create_user as create_user_service,
     get_users as get_users_service,
     get_user as get_user_service,
     update_user as update_user_service,
-    delete_user as delete_user_service,
+    delete_user as delete_user_service, authenticate_user,
 )
 
 router = APIRouter()
@@ -93,3 +94,26 @@ def delete_user(user_id: int, db: Session = Depends(get_db),):
         )
 
     return {"Сообщение": "Пользователь удален"}
+
+
+@router.post("/login")
+def login(user: LoginRequest, db: Session = Depends(get_db),):
+    """Авторизация пользователя."""
+    authenticated_user = authenticate_user(
+        db,
+        user.email,
+        user.password
+    )
+
+    if authenticated_user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Неверный email или пароль",
+        )
+
+    token = create_access_token(authenticated_user.id)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
