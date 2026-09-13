@@ -41,3 +41,12 @@ class LoginRequest(BaseModel):
     """Схема данных для авторизации."""
     email: str
     password: str
+
+
+class UserUpdateFull(BaseModel):
+    """Схема полного изменения пользователя."""
+    username: str = Field(min_length=3, max_length=20)
+    email: str
+    age: int = Field(ge=18, le=100)
+    phone: str
+    country: str
