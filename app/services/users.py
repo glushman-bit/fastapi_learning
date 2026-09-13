@@ -8,6 +8,7 @@ from app.repositories.users import (
     update_user as update_user_repository,
     get_users as get_users_repository,
     get_user_by_id,
+    get_user_by_email,
 )
 from app.exceptions import UserAlreadyExistsError
 from pwdlib import PasswordHash
@@ -69,3 +70,16 @@ def update_user(db: Session, user_id: int, user_data: dict):
 def delete_user(db: Session, user_id: int) -> bool:
     """Удаление пользователя."""
     return delete_user_repository(db, user_id)
+
+
+def authenticate_user(db: Session, email: str, password: str):
+    """Проверка email и пароля пользователя."""
+    user = get_user_by_email(db, email)
+
+    if user is None:
+        return None
+
+    if not password_hash.verify(password, user.password_hash):
+        return None
+
+    return user
