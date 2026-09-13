@@ -98,3 +98,16 @@ def check_user_access(
         )
 
     return current_user
+
+
+def get_current_admin(
+        current_user: User = Depends(get_current_user),
+):
+    """Проверка, что текущий пользователь является администратором."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Недостаточно прав",
+        )
+
+    return current_user
