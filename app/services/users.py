@@ -10,7 +10,7 @@ from app.repositories.users import (
     get_user_by_id,
     get_user_by_email, update_password,
 )
-from app.exceptions import UserAlreadyExistsError
+from app.exceptions import UserAlreadyExistsError, CannotDeleteSelfError
 from pwdlib import PasswordHash
 
 password_hash = PasswordHash.recommended()
@@ -67,8 +67,17 @@ def update_user(db: Session, user_id: int, user_data: dict):
     return update_user_repository(db, user_id, user_data)
 
 
-def delete_user(db: Session, user_id: int) -> bool:
+def delete_user(
+        db: Session,
+        user_id: int,
+        current_user_id: int
+) -> bool:
     """Удаление пользователя."""
+    if user_id == current_user_id:
+        raise CannotDeleteSelfError(
+            "Нельзя удалить самого себя"
+        )
+
     return delete_user_repository(db, user_id)
 
 
