@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token, get_current_user
+from app.auth import create_access_token, get_current_user, check_user_access
 from app.database import get_db
 from app.models import User
 
@@ -22,7 +22,10 @@ router = APIRouter()
 
 
 @router.post("/users", response_model=UserResponse)
-def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db),):
+def create_user_endpoint(
+        user: UserCreate,
+        db: Session = Depends(get_db),
+):
     """Эндпойнт: создание пользователя."""
     return create_user_service(
         db,
@@ -33,7 +36,7 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db),):
 @router.get("/users", response_model=list[UserResponse])
 def get_users_endpoint(
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),   # Защита доступа от неавторизованного пользователя
+        _: User = Depends(get_current_user),   # Защита доступа от неавторизованного пользователя
 ):
     """Эндпойнт: получение списка пользователей."""
     return get_users_service(db)
@@ -43,7 +46,7 @@ def get_users_endpoint(
 def get_user_endpoint(
         user_id: int,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(get_current_user),
 ):
     """Эндпойнт: получение пользователя по id."""
     user = get_user_service(db, user_id)
@@ -63,16 +66,10 @@ def update_user(
         user_id: int,
         user: UserUpdateFull,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        # user_access: User = Depends(check_user_access),    # Защита от другого пользователя
+        _: User = Depends(check_user_access),   # _ - Это буквально означает: «Результат dependency мне не нужен, но саму dependency нужно выполнить».
 ):
     """Эндпойнт: изменение пользователя."""
-
-    if current_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Нельзя изменять другого пользователя",
-        )
-
     updated_user = update_user_service(
         db,
         user_id,
@@ -93,15 +90,9 @@ def update_user_partial(
         user_id: int,
         user: UserUpdate,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(check_user_access),
 ):
     """Эндпойнт: Частичное изменение пользователя."""
-    if current_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Нельзя изменять другого пользователя",
-        )
-
     updated_user = update_user_service(
         db,
         user_id,
@@ -121,15 +112,9 @@ def update_user_partial(
 def delete_user(
         user_id: int,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(check_user_access),
 ):
     """Эндпойнт: удаление пользователя."""
-    if current_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Нельзя удалить другого пользователя",
-        )
-
     deleted_user = delete_user_service(db, user_id)
 
     if not deleted_user:
@@ -169,15 +154,9 @@ def change_password_endpoint(
         user_id: int,
         password_data: ChangePasswordRequest,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        _: User = Depends(check_user_access),
 ):
     """Изменение пароля."""
-    if current_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Нельзя изменить пароль другого пользователя",
-        )
-
     result = change_password(
         db,
         user_id,
