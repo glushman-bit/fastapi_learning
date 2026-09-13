@@ -8,7 +8,7 @@ from app.repositories.users import (
     update_user as update_user_repository,
     get_users as get_users_repository,
     get_user_by_id,
-    get_user_by_email,
+    get_user_by_email, update_password,
 )
 from app.exceptions import UserAlreadyExistsError
 from pwdlib import PasswordHash
@@ -100,9 +100,12 @@ def change_password(
     if not password_hash.verify(old_password, user.password_hash):
         return False
 
-    user.password_hash = password_hash.hash(new_password)
+    new_password_hash = password_hash.hash(new_password)
 
-    db.commit()
-    db.refresh(user)
+    update_password(
+        db,
+        user_id,
+        new_password_hash,
+    )
 
     return True
