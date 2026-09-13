@@ -1,10 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from app.auth import create_access_token
+from app.auth import create_access_token, get_current_user
 from app.database import get_db
+from app.models import User
 
-from app.schemas import UserResponse, UserCreate, UserUpdate, LoginRequest
+from app.schemas import (UserResponse,
+                         UserCreate,
+                         UserUpdate,
+                         LoginRequest,
+                         UserUpdateFull)
 from app.services.users import (
     create_user as create_user_service,
     get_users as get_users_service,
@@ -26,7 +31,10 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db),):
 
 
 @router.get("/users", response_model=list[UserResponse])
-def get_users_endpoint(db: Session = Depends(get_db),):
+def get_users_endpoint(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),   # Защита доступа от неавторизованного пользователя
+):
     """Эндпойнт: получение списка пользователей."""
     return get_users_service(db)
 
@@ -47,8 +55,20 @@ def get_user_endpoint(user_id: int, db: Session = Depends(get_db),):
 
 
 @router.put("/users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db),):
+def update_user(
+        user_id: int,
+        user: UserUpdateFull,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
     """Эндпойнт: изменение пользователя."""
+
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Нельзя изменять другого пользователя",
+        )
+
     updated_user = update_user_service(
         db,
         user_id,
@@ -65,8 +85,19 @@ def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db),):
 
 
 @router.patch("/users/{user_id}", response_model=UserResponse)
-def update_user_partial(user_id: int, user: UserUpdate, db: Session = Depends(get_db),):
+def update_user_partial(
+        user_id: int,
+        user: UserUpdate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
     """Эндпойнт: Частичное изменение пользователя."""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Нельзя изменять другого пользователя",
+        )
+
     updated_user = update_user_service(
         db,
         user_id,
@@ -83,8 +114,18 @@ def update_user_partial(user_id: int, user: UserUpdate, db: Session = Depends(ge
 
 
 @router.delete("/users/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db),):
+def delete_user(
+        user_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
     """Эндпойнт: удаление пользователя."""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Нельзя удалить другого пользователя",
+        )
+
     deleted_user = delete_user_service(db, user_id)
 
     if not deleted_user:
