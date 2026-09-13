@@ -32,3 +32,7 @@ class User(Base):
         String(255),
         nullable=False,
     )
+    is_admin: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+    )
