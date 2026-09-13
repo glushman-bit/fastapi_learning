@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
 
-from app.auth import get_token, get_current_user
+from app.auth import get_token, get_current_user, get_current_admin
 from app.database import engine, Base
 from app.exceptions import UserAlreadyExistsError
 from app.models import User
@@ -63,4 +63,13 @@ def current_user(user: User = Depends(get_current_user)):
         "user_id": user.id,
         "username": user.username,
         "email": user.email,
+    }
+
+
+@app.get("/admin-test")
+def admin_test(admin: User = Depends(get_current_admin)):
+    return {
+        "message": "Доступ разрешен",
+        "user_id": admin.id,
+        "username": admin.is_admin,
     }
