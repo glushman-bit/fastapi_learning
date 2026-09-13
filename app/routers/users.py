@@ -9,13 +9,13 @@ from app.schemas import (UserResponse,
                          UserCreate,
                          UserUpdate,
                          LoginRequest,
-                         UserUpdateFull)
+                         UserUpdateFull, ChangePasswordRequest)
 from app.services.users import (
     create_user as create_user_service,
     get_users as get_users_service,
     get_user as get_user_service,
     update_user as update_user_service,
-    delete_user as delete_user_service, authenticate_user,
+    delete_user as delete_user_service, authenticate_user, change_password,
 )
 
 router = APIRouter()
@@ -161,4 +161,42 @@ def login(user: LoginRequest, db: Session = Depends(get_db),):
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+
+@router.post("/users/{user_id}/change-password")
+def change_password_endpoint(
+        user_id: int,
+        password_data: ChangePasswordRequest,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
+    """Изменение пароля."""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Нельзя изменить пароль другого пользователя",
+        )
+
+    result = change_password(
+        db,
+        user_id,
+        password_data.old_password,
+        password_data.new_password,
+    )
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Пользователь не найден",
+        )
+
+    if result is False:
+        raise HTTPException(
+            status_code=400,
+            detail="Неверный старый пароль",
+        )
+
+    return {
+        "message": "Пароль успешно изменен."
     }
