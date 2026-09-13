@@ -91,6 +91,24 @@ def get_user_by_email(db: Session, email: str):
     return result.scalars().one_or_none()
 
 
+def update_password(
+        db: Session,
+        user_id: int,
+        password_hash: str,
+) -> bool:
+    """Обновление хеша пароля пользователя."""
+    user = db.get(User, user_id)
+
+    if user is None:
+        return False
+
+    user.password_hash = password_hash
+
+    db.commit()
+
+    return True
+
+
 # def update_user(db: Session, user_id: int, user_data: dict,):
 #     """Изменение пользователя. (Универсальная функция)"""
 #     user = db.get(User, user_id)
