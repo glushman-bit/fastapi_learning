@@ -83,6 +83,14 @@ def delete_user(db: Session, user_id: int) -> bool:
     return True
 
 
+def get_user_by_email(db: Session, email: str):
+    """Получение пользователя по email."""
+    statement = select(User).where(User.email==email)
+    result = db.execute(statement)
+
+    return result.scalars().one_or_none()
+
+
 # def update_user(db: Session, user_id: int, user_data: dict,):
 #     """Изменение пользователя. (Универсальная функция)"""
 #     user = db.get(User, user_id)
