@@ -86,10 +86,15 @@ def get_current_user(
     return user
 
 
-def check_user_access(current_user: User, user_id: int):
+def check_user_access(
+        user_id: int,
+        current_user: User = Depends(get_current_user),
+        ):
     """Проверка доступа пользователя к своим данным."""
     if current_user.id != user_id:
         raise HTTPException(
             status_code=403,
             detail="Нет доступа к данным другого пользователя",
         )
+
+    return current_user
