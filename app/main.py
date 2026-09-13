@@ -44,8 +44,6 @@ def test():
 
 @app.exception_handler(UserAlreadyExistsError)
 async def value_error_handler(request: Request, exc: UserAlreadyExistsError):
-
-
     return JSONResponse(
         status_code=409,
         content={"detail": str(exc)},
@@ -66,10 +64,11 @@ def current_user(user: User = Depends(get_current_user)):
     }
 
 
-@app.get("/admin-test")
-def admin_test(admin: User = Depends(get_current_admin)):
+@app.get("/admin/users")
+def admin_get_users(
+        admin: User = Depends(get_current_admin)
+):
     return {
-        "message": "Доступ разрешен",
-        "user_id": admin.id,
-        "username": admin.is_admin,
+        "message": "Список пользователей доступен администратору",
+        "admin_id": admin.id,
     }
