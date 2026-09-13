@@ -59,3 +59,16 @@ class ChangePasswordRequest(BaseModel):
     """Схема данных для смены пароля."""
     old_password: str
     new_password: str
+
+
+class AdminUserResponse(BaseModel):
+    """Схема пользователя для административного API."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    email: str
+    age: int
+    phone: str
+    country: str
+    is_admin: bool
